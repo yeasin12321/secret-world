@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আমাদের গোপন পৃথিবী</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* আপনার আগের সব CSS হুবহু এখানে থাকবে। জায়গার জন্য আমি CSS গুলো ছোট করে দিচ্ছি না, আপনি আগের স্টাইলগুলোই রাখবেন। */
+        :root { --primary-pink: #ff4d6d; --soft-pink: #fff0f3; --dark-text: #333; --bg-color: #fff0f3; --card-bg: #ffffff; }
+        [data-theme="dark"] { --primary-pink: #ff758f; --soft-pink: #1a1a1a; --dark-text: #f0f0f0; --bg-color: #121212; --card-bg: #1e1e1e; }
+        body { margin: 0; padding: 0; font-family: 'Hind Siliguri', sans-serif; background-color: var(--bg-color); color: var(--dark-text); transition: 0.3s; overflow-x: hidden; }
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: 0.5s; }
+        .login-box { text-align: center; padding: 30px; border-radius: 15px; background: var(--card-bg); box-shadow: 0 10px 30px rgba(255, 77, 109, 0.2); }
+        input[type="password"] { padding: 12px; border: 2px solid var(--primary-pink); border-radius: 25px; outline: none; text-align: center; background: var(--card-bg); color: var(--dark-text); }
+        #main-content { display: none; max-width: 1000px; margin: 0 auto; padding: 20px; padding-bottom: 80px; }
+        nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 20px 0; background: var(--card-bg); padding: 15px; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .nav-btn { background: transparent; color: var(--dark-text); border: none; font-weight: bold; cursor: pointer; padding: 8px 12px; border-radius: 20px; transition: 0.3s; font-size: 0.95rem; }
+        .nav-btn.active { background: var(--primary-pink); color: white; }
+        .theme-toggle { position: fixed; top: 20px; right: 20px; cursor: pointer; font-size: 24px; z-index: 100; background: var(--card-bg); padding: 5px; border-radius: 50%; border: 1px solid var(--primary-pink); }
+        .section { display: none; text-align: center; animation: fadeIn 0.8s ease; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .timeline { text-align: left; margin: 30px auto; max-width: 600px; border-left: 2px solid var(--primary-pink); padding-left: 20px; position: relative; }
+        .timeline-item { background: var(--card-bg); padding: 15px; border-radius: 15px; margin-bottom: 20px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .timeline-item::before { content: '❤'; position: absolute; left: -31px; top: 15px; color: var(--primary-pink); background: var(--bg-color); padding: 2px; }
+        #sheet-content-box { background: var(--card-bg); padding: 30px; border-radius: 20px; text-align: left; line-height: 1.8; margin: 20px 0; min-height: 150px; }
+        .page-btn { background: var(--card-bg); color: var(--primary-pink); border: 2px solid var(--primary-pink); padding: 5px 12px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .page-btn.active { background: var(--primary-pink); color: white; }
+        .photo-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px; }
+        .photo-gallery img { width: 100%; border-radius: 10px; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .bucket-list { text-align: left; max-width: 500px; margin: 0 auto; background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .bucket-list label { display: block; margin-bottom: 15px; font-size: 1.1rem; cursor: pointer; }
+        .bucket-list input[type="checkbox"] { accent-color: var(--primary-pink); transform: scale(1.2); margin-right: 10px; }
+        .calc-input { width: 80%; max-width: 300px; padding: 12px; margin: 10px auto; border-radius: 25px; border: 2px solid var(--primary-pink); text-align: center; background: var(--bg-color); color: var(--dark-text); font-family: 'Hind Siliguri', sans-serif; display: block; font-size: 1rem; }
+        .agreement-paper { background: var(--card-bg); border: 2px dashed var(--primary-pink); padding: 30px 20px; border-radius: 10px; text-align: left; margin: 20px auto; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
+        .agreement-list { list-style-type: decimal; padding-left: 20px; line-height: 1.8; font-size: 1.1rem; color: var(--dark-text); }
+        .fingerprint-container { text-align: center; margin-top: 30px; }
+        .fingerprint-btn { width: 80px; height: 80px; border-radius: 50%; background: var(--bg-color); border: 3px solid var(--primary-pink); display: inline-flex; justify-content: center; align-items: center; font-size: 40px; cursor: pointer; user-select: none; position: relative; overflow: hidden; transition: transform 0.2s; box-shadow: 0 4px 10px rgba(255, 77, 109, 0.2); margin: 0 auto; -webkit-tap-highlight-color: transparent; }
+        .fingerprint-btn:active { transform: scale(0.95); }
+        .fingerprint-fill { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: rgba(255, 77, 109, 0.4); transition: height 0.1s linear; }
+        .finger-icon { position: relative; z-index: 2; pointer-events: none; }
+        .signature-stamp { display: none; position: absolute; right: 20px; bottom: 30px; color: #ff4d6d; font-family: cursive; font-size: 1.5rem; transform: rotate(-15deg); border: 2px solid #ff4d6d; padding: 5px 15px; border-radius: 5px; opacity: 0.8; font-weight: bold; }
+        .music-player { position: fixed; bottom: 20px; left: 20px; background: var(--card-bg); padding: 10px 20px; border-radius: 50px; display: flex; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 100; border: 1px solid var(--primary-pink); }
+        .heart { position: fixed; color: var(--primary-pink); font-size: 20px; pointer-events: none; z-index: -1; animation: moveUp 4s linear forwards; }
+        @keyframes moveUp { 0% { transform: translateY(100vh); opacity: 1; } 100% { transform: translateY(-10vh); opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="theme-toggle" onclick="toggleTheme()">🌓</div>
+
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2 style="color: var(--primary-pink);">আমাদের নিজস্ব পৃথিবী</h2>
+            <input type="password" id="passInput" placeholder="পাসওয়ার্ড দিন...">
+            <br>
+            <button onclick="checkPassword()" style="margin-top: 15px; padding: 10px 25px; background: var(--primary-pink); color: white; border: none; border-radius: 25px; cursor: pointer;">প্রবেশ করুন</button>
+            <p id="err" style="color: red; display: none; margin-top: 10px;">ভুল পাসওয়ার্ড!</p>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <nav>
+            <button class="nav-btn active" onclick="showSection('home')">হোম</button>
+            <button class="nav-btn" onclick="showSection('timeline')">স্মৃতিরেখা</button>
+            <button class="nav-btn" onclick="showSection('writings')">লেখা</button>
+            <button class="nav-btn" onclick="showSection('gallery')">গ্যালারি</button>
+            <button class="nav-btn" onclick="showSection('bucket')">স্বপ্ন</button>
+            <button class="nav-btn" onclick="showSection('message')">চিঠি</button>
+            <button class="nav-btn" onclick="showSection('calculator')">ক্যালকুলেটর</button>
+            <button class="nav-btn" onclick="showSection('agreement')">চুক্তিপত্র</button>
+        </nav>
+
+        <div id="home" class="section active">
+            <h1 style="color: var(--primary-pink);">আমার পৃথিবী, রুমি ❤️</h1>
+            <div style="background: var(--card-bg); padding: 20px; border-radius: 20px; margin: 20px auto; max-width: 500px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                <h3 style="margin-top: 0;">আমাদের একসাথে পথচলার</h3>
+                <div id="timer-display" style="font-size: 1.5rem; font-weight: bold; color: var(--primary-pink);">লোড হচ্ছে...</div>
+            </div>
+            <button onclick="showRandomLove()" style="padding: 12px 25px; border-radius: 25px; border: none; background: var(--primary-pink); color: white; cursor: pointer; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(255, 77, 109, 0.3);">কেন এতো ভালোবাসি?</button>
+            <div style="min-height: 60px;"><p id="random-love-text" style="margin-top: 20px; font-weight: 500; font-size: 1.2rem; color: var(--primary-pink);"></p></div>
+        </div>
+
+        <div id="timeline" class="section">
+            <h2 style="color: var(--primary-pink);">আমাদের কিছু বিশেষ মুহূর্ত</h2>
+            <div class="timeline">
+                <div class="timeline-item"><strong>১৪ ফেব্রুয়ারি, ২০২৪:</strong> আমাদের সম্পর্কের শুরু।</div>
+                <div class="timeline-item"><strong>প্রথম দেখা:</strong> সেই দিনটি কখনোই ভুলব না।</div>
+            </div>
+        </div>
+
+        <div id="writings" class="section">
+            <h2 style="color: var(--primary-pink);">তোমার জন্য কিছু কথা</h2>
+            <div id="sheet-content-box">গুগল শিট থেকে লেখা লোড হচ্ছে...</div>
+            <div id="pagination" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px;"></div>
+        </div>
+
+        <div id="gallery" class="section">
+            <h2 style="color: var(--primary-pink);">আমাদের স্মৃতিগুলো</h2>
+            <div class="photo-gallery" id="dynamic-gallery">গুগল শিট থেকে ছবি লোড হচ্ছে...</div>
+        </div>
+
+        <div id="bucket" class="section">
+            <h2 style="color: var(--primary-pink);">আমাদের একসাথে দেখার স্বপ্নগুলো</h2>
+            <div class="bucket-list">
+                <label><input type="checkbox"> একসাথে অজানা কোনো শহরে ঘুরে বেড়ানো</label>
+                <label><input type="checkbox"> রাত জেগে দুজন মিলে আকাশের তারা গোনা</label>
+                <label><input type="checkbox"> পাশাপাশি বসে সূর্যাস্ত দেখা</label>
+                <label><input type="checkbox"> জীবনের শেষ দিন পর্যন্ত একে অপরের হাত ধরে থাকা</label>
+            </div>
+        </div>
+
+        <div id="message" class="section">
+            <h2 style="color: var(--primary-pink);">আমার জন্য তোমার কোনো কথা?</h2>
+            <div style="max-width: 500px; margin: 0 auto;">
+                <textarea id="secretMsg" placeholder="তোমার মনের কথাগুলো এখানে লেখো..." style="width: 100%; box-sizing: border-box; height: 120px; padding: 15px; border-radius: 15px; border: 2px solid var(--primary-pink); background: var(--card-bg); color: var(--dark-text); font-family: 'Hind Siliguri', sans-serif; font-size: 1rem;"></textarea>
+                <button id="sendBtn" onclick="sendMessage()" style="margin-top: 15px; padding: 12px 30px; background: var(--primary-pink); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1.1rem;">পাঠিয়ে দাও</button>
+                <p id="msgSent" style="display: none; color: #2ecc71; font-weight: bold; margin-top: 15px;">চিঠিটি ইয়াছিনের গুগল শিটে পৌঁছে গেছে! ❤️</p>
+            </div>
+        </div>
+
+        <div id="calculator" class="section">
+            <h2 style="color: var(--primary-pink);">ম্যাজিক লাভ ক্যালকুলেটর 💖</h2>
+            <div style="background: var(--card-bg); padding: 30px 20px; border-radius: 20px; max-width: 400px; margin: 20px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                <input type="text" id="boyName" class="calc-input" placeholder="ছেলের নাম">
+                <span style="font-size: 1.5rem; color: var(--primary-pink);">+</span>
+                <input type="text" id="girlName" class="calc-input" placeholder="মেয়ের নাম">
+                <button onclick="calculateLove()" style="margin-top: 20px; padding: 12px 30px; background: var(--primary-pink); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 10px rgba(255, 77, 109, 0.3);">হিসাব করুন</button>
+                <div id="loveResult" style="margin-top: 25px; font-size: 1.2rem; font-weight: bold; color: var(--primary-pink); min-height: 50px;"></div>
+            </div>
+        </div>
+
+        <div id="agreement" class="section">
+            <h2 style="color: var(--primary-pink);">অফিসিয়াল ভালোবাসার চুক্তিপত্র 📜</h2>
+            <div class="agreement-paper">
+                <h3 style="color: var(--primary-pink); border-bottom: 2px solid var(--primary-pink); padding-bottom: 10px; margin-top: 0; text-align: center;">শর্তসমূহ</h3>
+                <ol class="agreement-list">
+                    <li>রুমি আজীবন শুধুমাত্র ইয়াছিনের হয়ে থাকবে।</li>
+                    <li>যাই হয়ে যাক না কেন, ১০ মিনিটের বেশি রাগ করে থাকা যাবে না।</li>
+                    <li>প্রতিদিন নিয়ম করে ইয়াছিনকে অন্তত একবার "ভালোবাসি" বলতে হবে।</li>
+                    <li>ইয়াছিনের বোকামিগুলোতে বিরক্ত না হয়ে হাসিমুখে মেনে নিতে হবে।</li>
+                    <li>সর্বোপরি, একে অপরের সবসময় খেয়াল রাখতে হবে এবং একসাথে থাকতে হবে।</li>
+                </ol>
+                <div class="fingerprint-container">
+                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">সম্মতি জানাতে নিচে আঙুল ২ সেকেন্ড চেপে ধরে রাখুন</p>
+                    <div class="fingerprint-btn" id="fingerprintBtn">
+                        <div class="fingerprint-fill" id="fingerprintFill"></div>
+                        <span class="finger-icon">👆</span>
+                    </div>
+                    <p id="sign-success" style="display: none; color: #2ecc71; font-weight: bold; font-size: 1.1rem; margin-top: 15px;">চুক্তি সফলভাবে স্বাক্ষরিত হয়েছে! ❤️</p>
+                </div>
+                <div class="signature-stamp" id="signature-stamp">Signed by Rumi</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="music-player">
+        <span>🎵</span>
+        <button onclick="toggleMusic()" id="playBtn" style="border: none; background: none; cursor: pointer; color: var(--dark-text); font-weight: bold;">Play Music</button>
+        <audio id="bgMusic" loop>
+            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <script>
+        // ==========================================
+        // এখানে আপনার ডেটাগুলো বসান
+        // ==========================================
+        const SHEET_ID = '1KtKdTRoBQ102y-4VEEUi2VanuGo4M72H3CEHEP_hGQs'; 
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyvCSvsP8DpeBBkiOpc2agin1igY8xmkOOxM-pylsA83muKOxrlR6Pg4HXs9-pUJoq/exec';
+        const relationshipStartDate = new Date("2025-04-02T00:00:00").getTime(); 
+        // ==========================================
+
+        const WRITINGS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Writings`;
+        const GALLERY_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Gallery`;
+        let pagesData = [];
+
+        function toggleTheme() {
+            const body = document.body;
+            body.getAttribute('data-theme') === 'dark' ? body.removeAttribute('data-theme') : body.setAttribute('data-theme', 'dark');
+        }
+
+        function checkPassword() {
+            if (document.getElementById('passInput').value === "rumi123") { 
+                document.getElementById('login-overlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                    startApp();
+                }, 500);
+            } else { document.getElementById('err').style.display = 'block'; }
+        }
+
+        function startApp() {
+            setInterval(updateTimer, 1000);
+            createHearts();
+            fetchWritingsData();
+            fetchGalleryData();
+        }
+
+        function updateTimer() {
+            const diff = new Date().getTime() - relationshipStartDate;
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+            document.getElementById("timer-display").innerHTML = `${d} দিন, ${h} ঘণ্টা, ${m} মিনিট, ${s} সেকেন্ড`;
+        }
+
+        // গুগল শিট থেকে লেখা লোড করা
+        async function fetchWritingsData() {
+            try {
+                const response = await fetch(WRITINGS_URL);
+                const text = await response.text();
+                const json = JSON.parse(text.substr(47).slice(0, -2)); 
+                pagesData = json.table.rows.map(row => ({
+                    title: row.c[0] ? row.c[0].v : '',
+                    message: row.c[1] ? row.c[1].v : ''
+                })).filter(page => page.title !== '');
+                
+                if(pagesData.length > 0) { showPage(0); createPagination(); }
+                else { document.getElementById('sheet-content-box').innerText = "শিটে কোনো লেখা পাওয়া যায়নি।"; }
+            } catch (e) { document.getElementById('sheet-content-box').innerText = "লেখা লোড করতে সমস্যা হচ্ছে। শিটের লিংক ঠিক আছে কিনা চেক করুন।"; }
+        }
+
+        function showPage(index) {
+            const box = document.getElementById('sheet-content-box');
+            box.innerHTML = `<h3 style="color:var(--primary-pink); text-align:center;">${pagesData[index].title}</h3><p>${pagesData[index].message.replace(/\n/g, '<br>')}</p>`;
+            document.querySelectorAll('.page-btn').forEach((btn, i) => i === index ? btn.classList.add('active') : btn.classList.remove('active'));
+        }
+
+        function createPagination() {
+            const nav = document.getElementById('pagination');
+            nav.innerHTML = '';
+            pagesData.forEach((p, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'page-btn';
+                btn.innerText = p.title;
+                btn.onclick = () => showPage(i);
+                nav.appendChild(btn);
+            });
+        }
+
+        // গুগল শিট থেকে ছবি লোড করা
+        async function fetchGalleryData() {
+            try {
+                const response = await fetch(GALLERY_URL);
+                const text = await response.text();
+                const json = JSON.parse(text.substr(47).slice(0, -2));
+                let html = '';
+                json.table.rows.forEach(row => {
+                    const link = row.c[1] ? row.c[1].v : '';
+                    if(link) {
+                        const id = link.match(/\/d\/(.+?)\//);
+                        const src = id ? `https://drive.google.com/uc?export=view&id=${id[1]}` : link;
+                        html += `<img src="${src}" alt="Memory">`;
+                    }
+                });
+                document.getElementById('dynamic-gallery').innerHTML = html || "গ্যালারি খালি। শিটে ছবির লিংক দিন।";
+            } catch (e) { document.getElementById('dynamic-gallery').innerText = "ছবি লোড করা যাচ্ছে না। শিটের লিংক ঠিক আছে কিনা চেক করুন।"; }
+        }
+
+        function toggleMusic() {
+            const m = document.getElementById('bgMusic');
+            const b = document.getElementById('playBtn');
+            m.paused ? (m.play(), b.innerText = "Pause") : (m.pause(), b.innerText = "Play");
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function createHearts() {
+            setInterval(() => {
+                const h = document.createElement('div');
+                h.className = 'heart'; h.innerHTML = '❤️';
+                h.style.left = Math.random() * 100 + 'vw';
+                document.body.appendChild(h);
+                setTimeout(() => h.remove(), 4000);
+            }, 800);
+        }
+
+        function showRandomLove() {
+            const loveReasons = ["রুমির চোখের ওই মায়াবী চাহনির জন্য।", "কারণ রুমি ছাড়া আমার পৃথিবী একদম অসম্পূর্ণ।", "তোমার একটুখানি হাসিতে আমার পুরো দিনটা সুন্দর হয়ে যায়।"];
+            document.getElementById("random-love-text").innerText = loveReasons[Math.floor(Math.random() * loveReasons.length)];
+        }
+
+        // চিঠি পাঠানোর সিস্টেম (Google Apps Script এর মাধ্যমে)
+        function sendMessage() {
+            const msgBox = document.getElementById('secretMsg');
+            const msg = msgBox.value.trim();
+            const btn = document.getElementById('sendBtn');
+            const sentText = document.getElementById('msgSent');
+
+            if(msg !== '') {
+                btn.innerText = 'পাঠানো হচ্ছে...';
+                btn.disabled = true;
+
+                let formData = new FormData();
+                formData.append("message", msg);
+
+                fetch(APPS_SCRIPT_URL, {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    msgBox.value = '';
+                    btn.innerText = 'পাঠিয়ে দাও';
+                    btn.disabled = false;
+                    sentText.style.display = 'block';
+                    setTimeout(() => sentText.style.display = 'none', 5000);
+                })
+                .catch(err => {
+                    btn.innerText = 'আবার চেষ্টা করুন';
+                    btn.disabled = false;
+                    alert("নেটওয়ার্ক সমস্যা! চিঠি পাঠানো যায়নি।");
+                });
+            }
+        }
+
+        function calculateLove() {
+            let boy = document.getElementById('boyName').value.trim().toLowerCase();
+            let girl = document.getElementById('girlName').value.trim().toLowerCase();
+            let resultDiv = document.getElementById('loveResult');
+            if(boy === '' || girl === '') return resultDiv.innerText = "দয়া করে দুটি নামই লিখুন!";
+
+            const targetBoys = ['yeasin', 'ইয়াছিন', 'yasin'];
+            const targetGirls = ['rumi', 'mubassira', 'saima', 'saima saifa', 'saima saifa rumi', 'রুমি', 'মুবাসসিরা', 'সায়মা', 'সায়মা সাইফা', 'সায়মা সাইফা রুমি'];
+
+            if(targetBoys.includes(boy) && targetGirls.includes(girl)) {
+                resultDiv.innerHTML = "১০০% <br><span style='font-size: 1.2rem; color: #555; display: block; margin-top: 10px;'>একে অপরের জন্যই তৈরি! ❤️</span>";
+                resultDiv.style.fontSize = "3rem";
+            } else {
+                let randomScore = Math.floor(Math.random() * (95 - 65 + 1)) + 65;
+                resultDiv.innerHTML = `${randomScore}% <br><span style='font-size: 1rem; color: #888; display: block; margin-top: 5px;'>মোটামুটি ভালোই...</span>`;
+                resultDiv.style.fontSize = "2.5rem";
+            }
+        }
+
+        const fpBtn = document.getElementById('fingerprintBtn');
+        const fpFill = document.getElementById('fingerprintFill');
+        const signSuccess = document.getElementById('sign-success');
+        const sigStamp = document.getElementById('signature-stamp');
+        let holdTimer; let fillPercentage = 0; let isSigned = false;
+
+        function startHold(e) {
+            if(isSigned) return;
+            fillPercentage = 0; fpFill.style.height = '0%';
+            holdTimer = setInterval(() => {
+                fillPercentage += 2; fpFill.style.height = fillPercentage + '%';
+                if(fillPercentage >= 100) completeSignature();
+            }, 40); 
+        }
+
+        function cancelHold() {
+            if(isSigned) return;
+            clearInterval(holdTimer); fillPercentage = 0; fpFill.style.height = '0%';
+        }
+
+        function completeSignature() {
+            clearInterval(holdTimer); isSigned = true; fpFill.style.height = '100%';
+            fpFill.style.background = 'rgba(46, 204, 113, 0.5)'; fpBtn.style.borderColor = '#2ecc71';
+            signSuccess.style.display = 'block'; sigStamp.style.display = 'block';
+            for(let i=0; i<15; i++) {
+                setTimeout(() => {
+                    const h = document.createElement('div'); h.className = 'heart'; h.innerHTML = '❤️';
+                    h.style.left = Math.random() * 100 + 'vw'; document.body.appendChild(h);
+                    setTimeout(() => h.remove(), 4000);
+                }, i * 150);
+            }
+        }
+
+        fpBtn.addEventListener('mousedown', startHold);
+        fpBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startHold(); }, {passive: false});
+        fpBtn.addEventListener('mouseup', cancelHold); fpBtn.addEventListener('mouseleave', cancelHold); fpBtn.addEventListener('touchend', cancelHold);
+    </script>
+</body>
+</html>
